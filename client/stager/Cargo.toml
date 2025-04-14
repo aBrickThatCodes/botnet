@@ -1,0 +1,13 @@
+[package]
+name = "stager"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+fastrand = "2.3.0"
+flate2 = "1.1.1"
+fmtools = "0.1.2"
+houdini = "2.0.0"
+obfstr = "0.4.4"
+psutil = "5.2.0"
+ureq = "3.0.10"

@@ -1,6 +1,5 @@
 .vscode
 
 c2/cli/c2_cli
-c2/core/c2_core
 
-client/payload/client_payload
+target
